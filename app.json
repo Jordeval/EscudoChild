@@ -8,16 +8,22 @@
     "scheme": "escudochild",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Permitir que o aplicativo use o reconhecimento de fala para interagir com a criança.",
+        "NSMicrophoneUsageDescription": "Permitir que o aplicativo use o microfone para captação de voz."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/robot-icon1.jpg"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.escudo.EscudoChild"
     },
     "web": {
       "output": "static",
@@ -29,15 +35,20 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "image": "./assets/images/robot-icon1.jpg",
+          "imageWidth": 120
         }
       ],
       "expo-speech-recognition"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a397f5c1-44a6-488d-bfa3-e1c4e0581abe"
+      }
+    },
+    "owner": "escudo"
   }
 }

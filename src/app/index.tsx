@@ -15,13 +15,21 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
+import Constants from 'expo-constants';
 
 interface Mensagem {
   autor: 'usuario' | 'gemini';
   texto: string;
 }
 
-const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
+// Função segura para buscar a chave da API (local ou via EAS)
+const getGeminiApiKey = () => {
+  return (
+    process.env.EXPO_PUBLIC_GEMINI_API_KEY ||
+    (Constants.expoConfig?.extra as any)?.EXPO_PUBLIC_GEMINI_API_KEY ||
+    ''
+  );
+};
 
 export default function App() {
   const [nome, setNome] = useState('');
@@ -107,8 +115,9 @@ export default function App() {
     const textoParaEnviar = textoInput || mensagem;
     if (!textoParaEnviar.trim() || carregandoResposta) return;
 
-    if (!GEMINI_API_KEY) {
-      Alert.alert('Erro 🔑', 'Chave EXPO_PUBLIC_GEMINI_API_KEY não encontrada no arquivo .env.');
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) {
+      Alert.alert('Erro 🔑', 'Chave EXPO_PUBLIC_GEMINI_API_KEY não encontrada.');
       return;
     }
 
@@ -133,12 +142,12 @@ export default function App() {
       `;
 
       const response = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-goog-api-key': GEMINI_API_KEY.trim(),
+            'x-goog-api-key': apiKey.trim(),
           },
           body: JSON.stringify({
             system_instruction: {
@@ -188,7 +197,7 @@ export default function App() {
       <SafeAreaView style={styles.safeAreaConfig}>
         <ScrollView contentContainerStyle={styles.formContainer}>
           <View style={styles.topoConfigIcone}>
-            <Text style={styles.emojiDecoracao}>🎨</Text>
+            <Text style={styles.emojiDecoracao}>🤖</Text>
             <Text style={styles.tituloHeader}>Configurar Perfil</Text>
           </View>
 
@@ -243,7 +252,7 @@ export default function App() {
         <View style={styles.topBar}>
           <View style={styles.perfilInfoContainer}>
             <View style={styles.avatarCrianca}>
-              <Text style={styles.avatarEmoji}>🧒</Text>
+              <Text style={styles.avatarEmoji}>🤖</Text>
             </View>
             <View>
               <Text style={styles.nomePerfil}>{nome}</Text>
@@ -267,10 +276,10 @@ export default function App() {
         <ScrollView style={styles.chatArea} contentContainerStyle={styles.chatContent}>
           {historico.length === 0 ? (
             <View style={styles.boasVindas}>
-              <Text style={styles.emojiBoasVindas}>🤖👋</Text>
+              <Text style={styles.emojiBoasVindas}>🤖✨</Text>
               <Text style={styles.textoBoasVindas}>Olá, {nome}!</Text>
               <Text style={styles.subBoasVindas}>
-                Toque no botão verde abaixo para falar comigo usando a sua voz ou digite sua pergunta!
+                Toque no botão abaixo para falar comigo ou digite sua pergunta!
               </Text>
             </View>
           ) : (
@@ -360,7 +369,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F4F7FE' },
   centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F4F7FE' },
   
-  // Configuração inicial
   formContainer: { padding: 24, alignItems: 'center' },
   topoConfigIcone: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   emojiDecoracao: { fontSize: 32, marginRight: 8 },
@@ -402,7 +410,6 @@ const styles = StyleSheet.create({
   },
   textoBotao: { color: '#FFF', fontSize: 17, fontWeight: 'bold' },
 
-  // Barra Superior
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -443,7 +450,6 @@ const styles = StyleSheet.create({
   },
   textoEditar: { color: '#102A43', fontWeight: '700', fontSize: 13 },
 
-  // Área do Chat
   chatArea: { flex: 1, backgroundColor: '#F4F7FE' },
   chatContent: { padding: 16, paddingBottom: 20 },
   boasVindas: { alignItems: 'center', marginTop: 40, paddingHorizontal: 20 },
@@ -451,7 +457,6 @@ const styles = StyleSheet.create({
   textoBoasVindas: { fontSize: 24, fontWeight: 'bold', color: '#102A43', marginBottom: 8 },
   subBoasVindas: { fontSize: 15, color: '#486581', textAlign: 'center', lineHeight: 22 },
 
-  // Balões de Mensagens
   balaoWrapper: { flexDirection: 'row', marginBottom: 16, alignItems: 'flex-end' },
   balaoWrapperUsuario: { justifyContent: 'flex-end' },
   balaoWrapperGemini: { justifyContent: 'flex-start' },
@@ -494,7 +499,6 @@ const styles = StyleSheet.create({
   },
   textoOuvirNovamente: { color: '#4D96FF', fontSize: 12, fontWeight: 'bold' },
 
-  // Área Inferior de Input
   inputArea: {
     padding: 12,
     backgroundColor: '#FFFFFF',
